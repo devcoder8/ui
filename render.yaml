@@ -6,6 +6,7 @@ services:
     region: oregon  # Explicit region selection
     buildCommand: |
       mkdir -p assets && \
+      go mod download && \
       go build -o ./app ./cmd/main.go
     startCommand: ./app
     envVars:
