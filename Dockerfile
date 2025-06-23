@@ -1,24 +1,15 @@
 FROM golang:1.23-alpine AS builder
-
-# Set working directory
 WORKDIR /app
-
-# Copy module files first (better caching)
-COPY go.mod go.sum ./
-
-# Download dependencies
-RUN go mod download
-
-# Copy all source files
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./app ./cmd/main.go
 
-# Build explicitly pointing to main package
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main ./cmd/main.go
-
-RUN ls -la /app  # Add this before build to verify files
-
-# Final lightweight image
+# Production stage
 FROM alpine:latest
-COPY --from=builder /app/main /app/main
+RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
-ENTRYPOINT ["/app/main"]
+COPY --from=builder /app/app .
+COPY --from=builder /app/views ./views
+COPY --from=builder /app/assets ./assets
+ENV TZ=UTC
+EXPOSE 8080
+CMD ["./app"]

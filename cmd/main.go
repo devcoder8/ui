@@ -22,7 +22,7 @@ func main() {
 
 	e := echo.New()
 
-	e.Static("/static", "assets")
+	e.Static("/assets", "assets")
 
 	e.HTTPErrorHandler = handlers.CustomHTTPErrorHandler
 

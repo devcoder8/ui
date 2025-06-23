@@ -1,14 +1,19 @@
 services:
   - type: web
-    name: ui
+    name: go-echo-htmx
+    runtime: docker
     env: golang
-    goVersion: 1.23.0
+    region: oregon  # Explicit region selection
     buildCommand: |
-      go mod tidy
-      go mod vendor
-      cd cmd
-      go build -mod=vendor -o ../app
+      mkdir -p assets && \
+      go build -o ./app ./cmd/main.go
     startCommand: ./app
     envVars:
       - key: PORT
-        value: 8080
+        value: "8080"
+      - key: APP_ENV
+        value: "production"
+    autoDeploy: true
+    healthCheckPath: /health  # Recommended for web services
+    plan: free  # Explicit plan selection
+    tags: ["echo-htmx"]  # Explicit tags for organization
